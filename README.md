@@ -1,15 +1,33 @@
 # roop
 
-A CLI tool to display images (PNG, JPEG, GIF) in terminals that support the Kitty Graphics Protocol (KGP)
+A lightweight terminal inline image viewer for terminals that support the [Kitty Graphics Protocol (KGP)](https://sw.kovidgoyal.net/kitty/graphics-protocol/).
 
 ## Status
-It aint completed yet. Early WIP
+**Early WIP**
+`roop` is currently under active development. The project is not yet ready for general use.
+
+Currently supports:
+- PNG
+- JPEG
+
+### Currently implemented
+* PNG image support
+* JPEG image support
+
+### In development
+* GIF support
+* Image scaling and positioning
+* Additional image formats
 
 ## Usage
-`roop path/to/image`
+roop is still under development and does not have an installed CLI interface yet.
 
-## Why
-why you might ask.! i just didnt find a good inline terminal image rendering tool. And either you need Kitty and some dont handle gif well. roop aims to be a lightweight all in one inline image rendering tool for any KGP-compatible terminal.
+For now, run it through Cargo:
+
+`cargo run -- path/to/image`
 
 ## Requirements
-A terminal that supports Kitty Graphics Protocol (kitty, WezTerm, Ghostty etc.)
+A terminal emulator with **Kitty Graphics Protocol (KGP)** support(eg: Kitty, Ghostty, etc.).
+
+## License
+This project is licensed under the MIT License.

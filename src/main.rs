@@ -12,7 +12,7 @@ mod gif_reader;
 const CHUNK_SIZE: usize = 4096;
 
 fn main() {
-    // returns a vector with the binarys path and the args path
+    // collects the binarys path and command line arguments (here, path to image) into a vector
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2{
