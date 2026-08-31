@@ -1,6 +1,6 @@
 use base64::{engine::general_purpose, Engine as _};
 
-// encodes raw bytes as base64 and split the encoded data into chucks
+// encodes raw bytes as base64 and split the encoded data into chunks
 pub fn encode_and_chunk(payload: &[u8], chunk_size: usize) -> Vec<String> {
     let encoded = general_purpose::STANDARD.encode(payload);
 
