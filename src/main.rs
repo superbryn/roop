@@ -79,10 +79,10 @@ fn main() {
         }
     };
     
-    let chucks = encode::encode_and_chuck(&payload, CHUNK_SIZE);
+    let chunks = encode::encode_and_chunk(&payload, CHUNK_SIZE);
 
     let stdout = io::stdout();
     let mut handle = stdout.lock();
 
-    protocol::write_sequence(&mut handle, &chucks, format_code, width, height);
+    protocol::write_sequence(&mut handle, &chunks, format_code, width, height);
 }

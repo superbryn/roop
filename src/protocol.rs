@@ -1,9 +1,9 @@
 use std::io::Write;
 
 // chunking protocol
-pub fn write_sequence<W: Write>(handle: &mut W, chucks: &[String], format_code: u8, width: Option<u32>, height: Option<u32>,) {
-    for (i, chunk) in chucks.iter().enumerate(){
-        let is_last = i == chucks.len() - 1;
+pub fn write_sequence<W: Write>(handle: &mut W, chunks: &[String], format_code: u8, width: Option<u32>, height: Option<u32>,) {
+    for (i, chunk) in chunks.iter().enumerate(){
+        let is_last = i == chunks.len() - 1;
         let more_flag = if is_last { 0 } else { 1 };
 
         if i == 0 {
