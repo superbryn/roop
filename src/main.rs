@@ -2,12 +2,12 @@ use std::io;
 use std::fs;
 use std::process;
 use std::env;
-use format::ImageFormat;
-use image::GenericImageView;
+use image::{GenericImageView, ImageFormat};
 
 mod format;
 mod encode;
 mod protocol;
+mod gif_reader;
 
 const CHUNK_SIZE: usize = 4096;
 
@@ -22,10 +22,19 @@ fn main() {
 
     let path = &args[1];
 
+    let format_detected = match format::detect_format(path) {
+        Some(fmt) => fmt,
+        None => {
+            eprintln!("Could not detect the image format of {}",path);
+            process::exit(1);
+        }
+    };
+
+    
     // checking file format and loading the payload and meta
     // kitty supports PNG as an encoded image image format
     // whereas other formats need to be decoded into raw pixel data before trasmitting
-    let (payload, format_code, width, height) = match format::detect_format(path) {
+    let (payload, format_code, width, height) = match format_detected {
         ImageFormat::Png => {
             let raw_bytes = match fs::read(path) {
                 Ok(bytes) => bytes,
@@ -49,10 +58,21 @@ fn main() {
             (raw_pixels, 24u8, Some(w),Some(h))
         }
         ImageFormat::Gif => {
-            eprintln!("GIF Support coming soon guys");
+            let frames = match gif_reader::decode_gif(path) {
+                Ok(f) => f,
+                Err(e) => {
+                    eprintln!("Failed to decode GIF '{}':{}",path,e);
+                    process::exit(1);
+                }
+            };
+
+            println!("Decoded {} frames", frames.len());
+            for (i,f) in frames.iter().enumerate(){
+                println!("Frame {}: {}x{}, delay {}ms",i,f.buffer.width(),f.buffer.height(),f.delay);
+            }
             process::exit(1);
         }
-        ImageFormat::Unknown => {
+        _ => {
             eprintln!("Unsupported file format: {}",path);
             eprintln!("If possible, contribute @github.com/superbryn/roop");
             process::exit(1);
