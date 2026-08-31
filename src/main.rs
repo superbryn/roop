@@ -12,7 +12,7 @@ mod protocol;
 const CHUNK_SIZE: usize = 4096;
 
 fn main() {
-    // returns a vector with the binarys path and the args path
+    // collects the binarys path and command line arguments (here, path to image) into a vector
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2{
@@ -22,9 +22,9 @@ fn main() {
 
     let path = &args[1];
 
-    // checking file format and loading the payload and meta
-    // kitty supports PNG as an encoded image image format
-    // whereas other formats need to be decoded into raw pixel data before trasmitting
+    // checks the file format and loads the image payload
+    // KGP supports PNG as an encoded image format
+    // but other formats must be decoded into raw pixel data before trasmission
     let (payload, format_code, width, height) = match format::detect_format(path) {
         ImageFormat::Png => {
             let raw_bytes = match fs::read(path) {
@@ -59,7 +59,7 @@ fn main() {
         }
     };
     
-    let chucks = encode::encode_and_chuck(&payload, CHUNK_SIZE);
+    let chucks = encode::encode_and_chunk(&payload, CHUNK_SIZE);
 
     let stdout = io::stdout();
     let mut handle = stdout.lock();
