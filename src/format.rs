@@ -1,8 +1,6 @@
 use std::fs;
 
-#[derive(Debug, PartialEq)]
-
-// types 
+// formats 
 pub enum ImageFormat {
     Png,
     Jpeg,

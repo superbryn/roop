@@ -22,6 +22,9 @@ fn main() {
 
     let path = &args[1];
 
+    // checking file format and loading the payload and meta
+    // kitty supports PNG as an encoded image image format
+    // whereas other formats need to be decoded into raw pixel data before trasmitting
     let (payload, format_code, width, height) = match format::detect_format(path) {
         ImageFormat::Png => {
             let raw_bytes = match fs::read(path) {
