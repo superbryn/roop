@@ -10,6 +10,7 @@ mod protocol;
 mod gif_reader;
 
 const CHUNK_SIZE: usize = 4096;
+const FORMAT_CODE: u8 = 32;
 
 fn main() {
     // collects the binarys path and command line arguments (here, path to image) into a vector
@@ -66,11 +67,34 @@ fn main() {
                 }
             };
 
-            println!("Decoded {} frames", frames.len());
-            for (i,f) in frames.iter().enumerate(){
-                println!("Frame {}: {}x{}, delay {}ms",i,f.buffer.width(),f.buffer.height(),f.delay);
+            if frames.is_empty() {
+                eprintln!("This GIF has no frames");
+                process::exit(1);
             }
-            process::exit(1);
+
+            let image_id: u32 = std::process::id();
+
+            let stdout = io::stdout();
+            let mut handle = stdout.lock();
+
+            let first = &frames[0];
+            let (w,h) = (first.buffer.width(), first.buffer.height());
+            let first_payload = first.buffer.clone().into_raw();
+            let first_chunk = encode::encode_and_chunk(&first_payload, CHUNK_SIZE);
+
+            protocol::write_animation_first_frame(&mut handle, &first_chunk, FORMAT_CODE, w, h, image_id);
+
+            protocol::set_frame_delay(&mut handle, first.delay, image_id);
+
+            for frame in frames.iter().skip(1) {
+                let payload = frame.buffer.clone().into_raw();
+                let chunks = encode::encode_and_chunk(&payload, CHUNK_SIZE);
+                protocol::write_animation(&mut handle, &chunks, FORMAT_CODE, w, h, image_id, frame.delay);
+            }
+
+            protocol::start_animation(&mut handle, image_id);
+            
+            process::exit(0);
         }
         _ => {
             eprintln!("Unsupported file format: {}",path);
