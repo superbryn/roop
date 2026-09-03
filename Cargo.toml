@@ -5,4 +5,4 @@ edition = "2024"
 
 [dependencies]
 base64 = "0.23.1"
-image = "0.25.10"
+image = {version = "0.25.10", features = ["avif-native"]}

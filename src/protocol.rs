@@ -1,7 +1,9 @@
 use std::io::Write;
 
+
+// Standard Images
 // chunking protocol
-pub fn write_sequence<W: Write>(handle: &mut W, chunks: &[String], format_code: u8, width: Option<u32>, height: Option<u32>) {
+pub fn write_sequence_image<W: Write>(handle: &mut W, chunks: &[String], format_code: u8, width: Option<u32>, height: Option<u32>) {
     for (i, chunk) in chunks.iter().enumerate(){
         let is_last = i == chunks.len() - 1;
         let more_flag = if is_last { 0 } else { 1 };
@@ -22,6 +24,10 @@ pub fn write_sequence<W: Write>(handle: &mut W, chunks: &[String], format_code: 
     handle.flush().unwrap();
 }
 
+
+
+// GIF
+// Not working and in early Alpha (not working at all :skull:)
 pub fn write_animation_first_frame<W: Write>(handle: &mut W, chunks: &[String], format_code: u8, width: u32,height: u32,image_id: u32) {
     for (i,chunk) in chunks.iter().enumerate()  {
         let is_last = i == chunks.len() - 1;

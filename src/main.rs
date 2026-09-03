@@ -11,6 +11,7 @@ mod gif_reader;
 
 const CHUNK_SIZE: usize = 4096;
 const FORMAT_CODE: u8 = 32;
+const JPEG_FORMAT_CODE: u8 = 24;
 
 fn main() {
     // collects the binarys path and command line arguments (here, path to image) into a vector
@@ -31,7 +32,6 @@ fn main() {
         }
     };
 
-    
     // checks the file format and loads the image payload
     // KGP supports PNG as an encoded image format
     // but other formats must be decoded into raw pixel data before trasmission
@@ -56,7 +56,7 @@ fn main() {
             };
             let (w, h) = img.dimensions();
             let raw_pixels = img.to_rgb8().into_raw();
-            (raw_pixels, 24u8, Some(w),Some(h))
+            (raw_pixels, JPEG_FORMAT_CODE, Some(w),Some(h))
         }
         ImageFormat::Gif => {
             let frames = match gif_reader::decode_gif(path) {
@@ -96,9 +96,24 @@ fn main() {
             
             process::exit(0);
         }
+
+        ImageFormat::WebP | ImageFormat::Bmp | ImageFormat::Tiff | ImageFormat::Avif =>  {
+            let img = match image::open(path) {
+                Ok(img) => img,
+                Err(e) => {
+                    eprintln!("Failed to read {}: {}",path, e);
+                    process::exit(1);
+                }
+            };
+
+            let (w,h) = img.dimensions();
+            let raw_pixels = img.into_rgba8().into_raw();
+            (raw_pixels, FORMAT_CODE, Some(w),Some( h))
+        }
+        
         _ => {
             eprintln!("Unsupported file format: {}",path);
-            eprintln!("If possible, contribute @github.com/superbryn/roop");
+            eprintln!("If possible, 2contribute @github.com/superbryn/roop");
             process::exit(1);
         }
     };
@@ -108,5 +123,5 @@ fn main() {
     let stdout = io::stdout();
     let mut handle = stdout.lock();
 
-    protocol::write_sequence(&mut handle, &chunks, format_code, width, height);
+    protocol::write_sequence_image(&mut handle, &chunks, format_code, width, height);
 }
