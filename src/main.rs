@@ -10,8 +10,8 @@ mod protocol;
 mod gif_reader;
 
 const CHUNK_SIZE: usize = 4096;
-const FORMAT_CODE: u8 = 32;
-const JPEG_FORMAT_CODE: u8 = 24;
+const FORMAT_CODE_RGBA: u8 = 32;
+const FORMAT_CODE_RGB: u8 = 24;
 
 fn main() {
     // collects the binarys path and command line arguments (here, path to image) into a vector
@@ -56,7 +56,7 @@ fn main() {
             };
             let (w, h) = img.dimensions();
             let raw_pixels = img.to_rgb8().into_raw();
-            (raw_pixels, JPEG_FORMAT_CODE, Some(w),Some(h))
+            (raw_pixels, FORMAT_CODE_RGB, Some(w),Some(h))
         }
         ImageFormat::Gif => {
             let frames = match gif_reader::decode_gif(path) {
@@ -82,39 +82,30 @@ fn main() {
             let first_payload = first.buffer.clone().into_raw();
             let first_chunk = encode::encode_and_chunk(&first_payload, CHUNK_SIZE);
 
-            protocol::write_animation_first_frame(&mut handle, &first_chunk, FORMAT_CODE, w, h, image_id);
+            protocol::write_animation_first_frame(&mut handle, &first_chunk, FORMAT_CODE_RGBA, w, h, image_id);
 
             protocol::set_frame_delay(&mut handle, first.delay, image_id);
 
             for frame in frames.iter().skip(1) {
                 let payload = frame.buffer.clone().into_raw();
                 let chunks = encode::encode_and_chunk(&payload, CHUNK_SIZE);
-                protocol::write_animation(&mut handle, &chunks, FORMAT_CODE, w, h, image_id, frame.delay);
+                protocol::write_animation(&mut handle, &chunks, FORMAT_CODE_RGBA, w, h, image_id, frame.delay);
             }
 
             protocol::start_animation(&mut handle, image_id);
             
             process::exit(0);
         }
-
-        ImageFormat::WebP | ImageFormat::Bmp | ImageFormat::Tiff | ImageFormat::Avif =>  {
-            let img = match image::open(path) {
-                Ok(img) => img,
-                Err(e) => {
-                    eprintln!("Failed to read {}: {}",path, e);
-                    process::exit(1);
-                }
-            };
-
-            let (w,h) = img.dimensions();
-            let raw_pixels = img.into_rgba8().into_raw();
-            (raw_pixels, FORMAT_CODE, Some(w),Some( h))
-        }
         
         _ => {
-            eprintln!("Unsupported file format: {}",path);
-            eprintln!("If possible, 2contribute @github.com/superbryn/roop");
-            process::exit(1);
+            let img = image::open(path).unwrap_or_else(|e| {
+                eprintln!("Failed to read or decode {}: {}",path,e);
+                process::exit(1);
+            });
+            
+            let (w,h) = img.dimensions();
+            let raw_pixels = img.into_rgba8().into_raw();
+            (raw_pixels, FORMAT_CODE_RGBA, Some(w),Some( h))
         }
     };
     
