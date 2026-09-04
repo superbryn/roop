@@ -7,7 +7,6 @@ use image::{GenericImageView, ImageFormat};
 mod format;
 mod encode;
 mod protocol;
-mod gif_reader;
 
 const CHUNK_SIZE: usize = 4096;
 const FORMAT_CODE_RGBA: u8 = 32; // for images with alpha channel
@@ -58,45 +57,7 @@ fn main() {
             let raw_pixels = img.to_rgb8().into_raw();
             (raw_pixels, FORMAT_CODE_RGB, Some(w),Some(h))
         }
-        ImageFormat::Gif => {
-            let frames = match gif_reader::decode_gif(path) {
-                Ok(f) => f,
-                Err(e) => {
-                    eprintln!("Failed to decode GIF '{}':{}",path,e);
-                    process::exit(1);
-                }
-            };
-
-            if frames.is_empty() {
-                eprintln!("This GIF has no frames");
-                process::exit(1);
-            }
-
-            let image_id: u32 = std::process::id();
-
-            let stdout = io::stdout();
-            let mut handle = stdout.lock();
-
-            let first = &frames[0];
-            let (w,h) = (first.buffer.width(), first.buffer.height());
-            let first_payload = first.buffer.clone().into_raw();
-            let first_chunk = encode::encode_and_chunk(&first_payload, CHUNK_SIZE);
-
-            protocol::write_animation_first_frame(&mut handle, &first_chunk, FORMAT_CODE_RGBA, w, h, image_id);
-
-            protocol::set_frame_delay(&mut handle, first.delay, image_id);
-
-            for frame in frames.iter().skip(1) {
-                let payload = frame.buffer.clone().into_raw();
-                let chunks = encode::encode_and_chunk(&payload, CHUNK_SIZE);
-                protocol::write_animation(&mut handle, &chunks, FORMAT_CODE_RGBA, w, h, image_id, frame.delay);
-            }
-
-            protocol::start_animation(&mut handle, image_id);
-            
-            process::exit(0);
-        }
-
+        
         // renderers every image format supported by image crate
         _ => {
             let img = image::open(path).unwrap_or_else(|e| {
