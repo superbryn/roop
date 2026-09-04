@@ -10,8 +10,8 @@ mod protocol;
 mod gif_reader;
 
 const CHUNK_SIZE: usize = 4096;
-const FORMAT_CODE_RGBA: u8 = 32;
-const FORMAT_CODE_RGB: u8 = 24;
+const FORMAT_CODE_RGBA: u8 = 32; // for images with alpha channel
+const FORMAT_CODE_RGB: u8 = 24;  // for images without alpha channel 
 
 fn main() {
     // collects the binarys path and command line arguments (here, path to image) into a vector
