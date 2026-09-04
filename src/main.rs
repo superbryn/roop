@@ -96,7 +96,8 @@ fn main() {
             
             process::exit(0);
         }
-        
+
+        // renderers every image format supported by Image crate
         _ => {
             let img = image::open(path).unwrap_or_else(|e| {
                 eprintln!("Failed to read or decode {}: {}",path,e);
@@ -114,5 +115,5 @@ fn main() {
     let stdout = io::stdout();
     let mut handle = stdout.lock();
 
-    protocol::write_sequence_image(&mut handle, &chunks, format_code, width, height);
+    protocol::write_sequence_image(&mut handle, &chunks, format_code,width,height);
 }
