@@ -97,7 +97,7 @@ fn main() {
             process::exit(0);
         }
 
-        // renderers every image format supported by Image crate
+        // renderers every image format supported by image crate
         _ => {
             let img = image::open(path).unwrap_or_else(|e| {
                 eprintln!("Failed to read or decode {}: {}",path,e);
