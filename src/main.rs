@@ -16,7 +16,7 @@ fn main() {
     // collects the binarys path and command line arguments (here, path to image) into a vector
     let args: Vec<String> = env::args().collect();
 
-    if args.len() < 2{
+    if args.len() < 2 || args[1] == "--help" {
         println!("Usage: roop path/to/image");
         process::exit(1);
     }
@@ -75,6 +75,6 @@ fn main() {
 
     let stdout = io::stdout();
     let mut handle = stdout.lock();
-
+    
     protocol::write_sequence_image(&mut handle, &chunks, format_code,width,height);
 }
