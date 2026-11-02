@@ -1,6 +1,5 @@
 use std::io::Write;
 
-
 // Standard Images
 // chunking protocol
 pub fn write_sequence_image<W: Write>(handle: &mut W, chunks: &[String], format_code: u8, width: Option<u32>, height: Option<u32>) {

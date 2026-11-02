@@ -7,3 +7,4 @@ edition = "2024"
 base64 = "0.23.1"
 crossterm = "0.29.0"
 image = {version = "0.25.10", features = ["avif-native"]}
+ureq = "3.5.0"
