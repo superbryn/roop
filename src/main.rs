@@ -29,6 +29,11 @@ fn main() {
     // collects the binarys path and command line arguments (here, path to image) into a vector
     let args: Vec<String> = env::args().collect();
 
+    if args.len() < 2 || args[1] == "--version" {
+        println!("roop version 0.0.5 (Apple)");
+        process::exit(1);
+    }
+
     if args.len() < 2 || args[1] == "--help" {
         println!("Usage: roop path/to/image or roop <url>");
         process::exit(1);
